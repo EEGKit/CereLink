@@ -92,7 +92,7 @@ cmake_policy(SET CMP0042 NEW) # ENABLE CMP0042: MACOSX_RPATH is enabled by defau
 # -Qt
 FIND_PACKAGE(Qt6 REQUIRED COMPONENTS Core Xml Concurrent)
 set(CMAKE_AUTOMOC ON)
-SET(QT_LIBRARIES Qt6::Core Qt6::Xml Qt6::Concurrent)
+SET(QT_LIBRARIES Qt6::Core Qt6::Concurrent)
 ADD_DEFINITIONS( ${QT_DEFINITIONS} -DQT_APP)
 
 # -HDF5
@@ -144,10 +144,41 @@ IF(${BUILD_CBOCT})
     FIND_PACKAGE( Octave )
 ENDIF()
 
+# Custom CCFUtils Lib
+set( CCF_SOURCE
+    ${PROJECT_SOURCE_DIR}/CCFUtils/CCFUtils.cpp
+    ${PROJECT_SOURCE_DIR}/CCFUtils/CCFUtils.h
+    ${PROJECT_SOURCE_DIR}/CCFUtils/CCFUtilsBinary.cpp
+    ${PROJECT_SOURCE_DIR}/CCFUtils/CCFUtilsBinary.h
+    ${PROJECT_SOURCE_DIR}/CCFUtils/CCFUtilsConcurrent.cpp
+    ${PROJECT_SOURCE_DIR}/CCFUtils/CCFUtilsConcurrent.h
+    ${PROJECT_SOURCE_DIR}/CCFUtils/CCFUtilsXml.cpp
+    ${PROJECT_SOURCE_DIR}/CCFUtils/CCFUtilsXml.h
+    ${PROJECT_SOURCE_DIR}/CCFUtils/CCFUtilsXmlItems.cpp
+    ${PROJECT_SOURCE_DIR}/CCFUtils/CCFUtilsXmlItems.h
+    ${PROJECT_SOURCE_DIR}/CCFUtils/CCFUtilsXmlItemsGenerate.h
+    ${PROJECT_SOURCE_DIR}/CCFUtils/CCFUtilsXmlItemsParse.h
+    ${PROJECT_SOURCE_DIR}/CCFUtils/XmlFile.cpp
+    ${PROJECT_SOURCE_DIR}/CCFUtils/XmlFile.h
+    ${PROJECT_SOURCE_DIR}/CCFUtils/XmlItem.h
+)
+add_library( CCFUtils OBJECT ${CCF_SOURCE} )
+target_link_libraries( CCFUtils PRIVATE Qt6::Core Qt6::Xml Qt6::Concurrent )
+target_include_directories(CCFUtils
+        PRIVATE
+            ${PROJECT_SOURCE_DIR}/cbproto
+        PUBLIC
+            $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/CCFUtils>
+            $<INSTALL_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/CCFUtils>
+        INTERFACE # for unit tests
+            $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/CCFUtils>
+)
+
 ##########################################################################################
 # Files/folders common to multiple targets
 
 SET( LIB_INCL_DIRS
+    ${PROJECT_SOURCE_DIR}/cbproto
     ${PROJECT_SOURCE_DIR}/cbsdk
     ${PROJECT_SOURCE_DIR}/cbhwlib
     ${PROJECT_SOURCE_DIR}/Central
@@ -161,13 +192,7 @@ SET( LIB_SOURCE
     ${PROJECT_SOURCE_DIR}/cbsdk/cbsdk.cpp
     ${PROJECT_SOURCE_DIR}/cbhwlib/cbhwlib.cpp
     ${PROJECT_SOURCE_DIR}/cbhwlib/cbHwlibHi.cpp
-    ${PROJECT_SOURCE_DIR}/cbhwlib/CCFUtils.cpp
-    ${PROJECT_SOURCE_DIR}/cbhwlib/CCFUtilsBinary.cpp
-    ${PROJECT_SOURCE_DIR}/cbhwlib/CCFUtilsConcurrent.cpp
-    ${PROJECT_SOURCE_DIR}/cbhwlib/CCFUtilsXml.cpp
-    ${PROJECT_SOURCE_DIR}/cbhwlib/CCFUtilsXmlItems.cpp
     ${PROJECT_SOURCE_DIR}/cbhwlib/InstNetwork.cpp
-    ${PROJECT_SOURCE_DIR}/cbhwlib/XmlFile.cpp
     ${PROJECT_SOURCE_DIR}/Central/Instrument.cpp
     ${PROJECT_SOURCE_DIR}/Central/UDPsocket.cpp
 )
@@ -194,7 +219,7 @@ ENDIF( MSVC )
 # cbsdk shared / dynamic
 ADD_LIBRARY( ${LIB_NAME} SHARED ${LIB_SOURCE} )
 TARGET_INCLUDE_DIRECTORIES( ${LIB_NAME} PRIVATE ${LIB_INCL_DIRS} )
-TARGET_LINK_LIBRARIES( ${LIB_NAME} PRIVATE ${QT_LIBRARIES} )
+TARGET_LINK_LIBRARIES( ${LIB_NAME} PRIVATE Qt6::Core Qt6::Concurrent CCFUtils)
 IF( WIN32 )
     TARGET_LINK_LIBRARIES( ${LIB_NAME} PRIVATE wsock32 ws2_32 winmm )
 ELSE()
@@ -216,7 +241,7 @@ SET_TARGET_PROPERTIES(
 IF(${BUILD_STATIC})
     ADD_LIBRARY( ${LIB_NAME_STATIC} STATIC ${LIB_SOURCE} ${LIB_HEADERS_MOC} )
     TARGET_INCLUDE_DIRECTORIES( ${LIB_NAME_STATIC} PRIVATE ${LIB_INCL_DIRS})
-    TARGET_LINK_LIBRARIES( ${LIB_NAME_STATIC} PRIVATE ${QT_LIBRARIES} )
+    TARGET_LINK_LIBRARIES( ${LIB_NAME_STATIC} PRIVATE Qt6::Core Qt6::Concurrent CCFUtils)
     IF( WIN32 )
         TARGET_LINK_LIBRARIES( ${LIB_NAME_STATIC} PRIVATE ws2_32 winmm )
         SET_TARGET_PROPERTIES( ${LIB_NAME_STATIC} PROPERTIES
@@ -361,7 +386,7 @@ IF(${BUILD_TEST})
         ${LIB_INCL_DIRS}
         ${PROJECT_SOURCE_DIR}/cbsdk
     )
-    TARGET_LINK_LIBRARIES(testcbsdk PRIVATE ${QT_LIBRARIES})
+    TARGET_LINK_LIBRARIES(testcbsdk PRIVATE Qt6::Core Qt6::Concurrent CCFUtils)
     IF(WIN32)
         TARGET_LINK_LIBRARIES(testcbsdk
             PRIVATE
