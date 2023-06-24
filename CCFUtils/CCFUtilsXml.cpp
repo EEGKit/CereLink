@@ -20,6 +20,7 @@
 #include "debugmacs.h"
 #include "../CentralCommon/BmiVersion.h"
 #include <algorithm>
+#include <chrono>
 #include "pugixml.hpp"
 
 #ifdef _DEBUG
