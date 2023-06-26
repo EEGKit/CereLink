@@ -514,6 +514,9 @@ if(WIN32)
             $<TARGET_RUNTIME_DLLS:${LIB_NAME}>
             TYPE BIN
     )
+    install(FILES ${pugixml_BINARY_DIR}/pugixml.lib
+            DESTINATION lib${LIB_SUFFIX}
+            )
 endif(WIN32)
 
 
