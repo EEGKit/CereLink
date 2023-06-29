@@ -10,3 +10,8 @@ Here is a high-level flowchart for what happens inside the SDK when you call cbS
 
 ![cbSdkOpen flowchart](cbSdkOpen_flowchart.svg)
 
+### cbSdkOpen V2
+
+Here is a high-level flowchart for what happens inside cbSdkOpen after prposed changes.
+
+![cbSdkOpen flowchart V2](cbSdkOpen_flowchart_V2.svg)
