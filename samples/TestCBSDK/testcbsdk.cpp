@@ -106,7 +106,7 @@ cbSdkVersion testGetVersion(void)
 		printf("Unable to determine instrument version\n");
 	}
 	else {
-		printf("Initializing Cerebus real-time interface %d.%02d.%02d.%02d (protocol cb%d.%02d)...\n", ver.major, ver.minor, ver.release, ver.beta, ver.majorp, ver.minorp);
+		printf("Initializing Cerebus real-time interface %d.%d.%02d.%02d (protocol cb%d.%d)...\n", ver.major, ver.minor, ver.release, ver.beta, ver.majorp, ver.minorp);
 	}
 	handleResult(res);
 	return ver;
